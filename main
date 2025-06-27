@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Daily Job Prep Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #f3f9ff, #dff1ff);
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    .date {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      color: #555;
+    }
+    .task {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      background: #f7faff;
+      padding: 0.75rem;
+      border-radius: 6px;
+      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.05);
+    }
+    .task.done {
+      background-color: #d1ffd6;
+    }
+    .task input[type="checkbox"] {
+      margin-right: 0.75rem;
+      transform: scale(1.2);
+    }
+    .task .text {
+      flex: 1;
+      cursor: pointer;
+    }
+    .task .time {
+      color: #777;
+      font-size: 0.85rem;
+      margin-left: 1rem;
+    }
+    .edit-button, .remove-button {
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-left: 0.5rem;
+    }
+    .add-task-btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 My Daily Tracker (DSA + Job Prep)</h2>
+    <div class="date" id="current-date"></div>
+    <div id="task-list"></div>
+    <button class="add-task-btn" onclick="addTask()">➕ Add New Task</button>
+  </div>
+
+  <script>
+    const today = new Date().toISOString().split("T")[0];
+    const taskListEl = document.getElementById("task-list");
+    document.getElementById("current-date").textContent = new Date().toDateString();
+
+    let routine = [
+      { text: "Wake up & Freshen Up", time: "06:00 AM" },
+      { text: "Light Exercise / Meditation", time: "06:30 AM" },
+      { text: "Breakfast", time: "07:00 AM" },
+      { text: "GATE Preparation / Revision", time: "07:30 AM" },
+      { text: "Chill / Power Nap / Podcasts", time: "09:00 AM" },
+      { text: "DSA Practice (Striver A2Z)", time: "09:30 AM" },
+      { text: "Lunch Break", time: "12:00 PM" },
+      { text: "Projects / Coding", time: "01:30 PM" },
+      { text: "Aptitude / Resume Practice", time: "03:00 PM" },
+      { text: "Tea & Relax Break", time: "04:00 PM" },
+      { text: "Interview Prep / LeetCode", time: "04:30 PM" },
+      { text: "Evening Walk", time: "06:00 PM" },
+      { text: "Dinner", time: "07:00 PM" },
+      { text: "Job Applications / LinkedIn", time: "08:00 PM" },
+      { text: "Mock Interview / OS, DBMS", time: "09:00 PM" },
+      { text: "Daily Rewind + Light Chill", time: "10:30 PM" },
+      { text: "Sleep", time: "11:30 PM" }
+    ];
+
+    function loadTasks() {
+      const saved = JSON.parse(localStorage.getItem(`routine-${today}`)) || {};
+      const edits = JSON.parse(localStorage.getItem("routine-edits")) || routine;
+      routine = edits;
+      taskListEl.innerHTML = "";
+
+      routine.forEach((task, index) => {
+        const div = document.createElement("div");
+        div.className = "task";
+        if (saved[task.text]) div.classList.add("done");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = saved[task.text] || false;
+        checkbox.onchange = () => toggleTask(task.text);
+
+        const textSpan = document.createElement("span");
+        textSpan.className = "text";
+        textSpan.textContent = task.text;
+        textSpan.onclick = () => toggleTask(task.text);
+
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "time";
+        timeSpan.textContent = task.time;
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "edit-button";
+        editBtn.textContent = "✏️";
+        editBtn.onclick = (e) => {
+          e.stopPropagation();
+          editTask(index);
+        };
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "remove-button";
+        removeBtn.textContent = "🗑️";
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          removeTask(index);
+        };
+
+        div.appendChild(checkbox);
+        div.appendChild(textSpan);
+        div.appendChild(timeSpan);
+        div.appendChild(editBtn);
+        div.appendChild(removeBtn);
+        taskListEl.appendChild(div);
+      });
+    }
+
+    function toggleTask(task) {
+      const saved = JSON.parse(localStorage.getItem(`routine-${today}`)) || {};
+      saved[task] = !saved[task];
+      localStorage.setItem(`routine-${today}`, JSON.stringify(saved));
+      loadTasks();
+    }
+
+    function editTask(index) {
+      const newTask = prompt("Edit task name:", routine[index].text);
+      const newTime = prompt("Edit time (e.g., 08:00 AM):", routine[index].time);
+      if (newTask && newTime) {
+        routine[index].text = newTask;
+        routine[index].time = newTime;
+        localStorage.setItem("routine-edits", JSON.stringify(routine));
+        loadTasks();
+      }
+    }
+
+    function removeTask(index) {
+      if (confirm("Remove this task?")) {
+        routine.splice(index, 1);
+        localStorage.setItem("routine-edits", JSON.stringify(routine));
+        loadTasks();
+      }
+    }
+
+    function addTask() {
+      const taskText = prompt("New task name:");
+      const taskTime = prompt("Task time (e.g., 02:00 PM):");
+      if (taskText && taskTime) {
+        routine.push({ text: taskText, time: taskTime });
+        localStorage.setItem("routine-edits", JSON.stringify(routine));
+        loadTasks();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadTasks);
+  </script>
+</body>
+</html>
