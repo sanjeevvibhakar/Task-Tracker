@@ -2,94 +2,197 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Daily Job Prep Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>2025 Tracker with Progress</title>
   <style>
+    :root {
+      --main-color: #3f51b5;
+      --bg-light: #f0f4ff;
+      --card-bg: white;
+      --text-color: #333;
+      --accent-color: #ff9800;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #f3f9ff, #dff1ff);
+      background: var(--bg-light);
       margin: 0;
       padding: 0;
     }
+
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 2rem auto;
       padding: 2rem;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.8s ease-in-out;
     }
-    h2 {
+
+    h2, h3 {
       text-align: center;
+      color: var(--text-color);
       margin-bottom: 1rem;
-      color: #333;
     }
+
     .date {
       text-align: center;
       font-weight: bold;
-      margin-bottom: 2rem;
       color: #555;
     }
+
+    .progress {
+      text-align: center;
+      font-size: 1.2rem;
+      margin: 1.5rem 0;
+      color: var(--main-color);
+    }
+
     .task {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.75rem;
-      background: #f7faff;
-      padding: 0.75rem;
-      border-radius: 6px;
-      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.05);
+      background: #eef2ff;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
     }
+
+    .task:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+    }
+
     .task.done {
-      background-color: #d1ffd6;
+      background: #d1ffd6;
+      text-decoration: line-through;
     }
+
     .task input[type="checkbox"] {
-      margin-right: 0.75rem;
-      transform: scale(1.2);
+      transform: scale(1.3);
+      margin-right: 1rem;
     }
+
     .task .text {
       flex: 1;
       cursor: pointer;
+      font-size: 1rem;
     }
+
     .task .time {
       color: #777;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       margin-left: 1rem;
     }
+
     .edit-button, .remove-button {
       background: none;
       border: none;
-      color: #007bff;
+      font-size: 1.1rem;
       cursor: pointer;
-      font-size: 0.85rem;
       margin-left: 0.5rem;
+      transition: color 0.3s;
     }
+
+    .edit-button:hover {
+      color: #007bff;
+    }
+
+    .remove-button:hover {
+      color: red;
+    }
+
     .add-task-btn {
       display: block;
       width: 100%;
-      padding: 0.75rem;
-      background-color: #007bff;
+      padding: 1rem;
+      background: var(--main-color);
       color: white;
       border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
+      border-radius: 12px;
+      font-size: 1.1rem;
       margin-top: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .add-task-btn:hover {
+      background: #2c3cb5;
+    }
+
+    .month {
+      margin-top: 3rem;
+    }
+
+    .month-name {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .day {
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      background: #e0e0e0;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .day:hover {
+      transform: scale(1.1);
+      background: #c5cae9;
+    }
+
+    .future {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .today {
+      border: 2px solid var(--accent-color);
+      font-weight: bold;
+      background-color: #fff3e0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🧠 My Daily Tracker (DSA + Job Prep)</h2>
+   <div class="container">
+    <h2>🧠 My Daily Job Prep Tracker (2025)</h2>
     <div class="date" id="current-date"></div>
+    <h3>✅ Completion Progress</h3>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progress-fill">0%</div>
+    </div>
     <div id="task-list"></div>
     <button class="add-task-btn" onclick="addTask()">➕ Add New Task</button>
+
+    <h3 style="margin-top: 3rem;">🗓️ Yearly Calendar</h3>
+    <div class="months" id="month-grid"></div>
   </div>
 
   <script>
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date();
+    const todayKey = today.toISOString().split("T")[0];
     const taskListEl = document.getElementById("task-list");
-    document.getElementById("current-date").textContent = new Date().toDateString();
+    document.getElementById("current-date").textContent = today.toDateString();
+    const progressFill = document.getElementById("progress-fill");
 
     let routine = [
       { text: "Wake up & Freshen Up", time: "06:00 AM" },
@@ -112,15 +215,19 @@
     ];
 
     function loadTasks() {
-      const saved = JSON.parse(localStorage.getItem(`routine-${today}`)) || {};
+      const saved = JSON.parse(localStorage.getItem(`routine-${todayKey}`)) || {};
       const edits = JSON.parse(localStorage.getItem("routine-edits")) || routine;
       routine = edits;
+      let doneCount = 0;
       taskListEl.innerHTML = "";
 
       routine.forEach((task, index) => {
         const div = document.createElement("div");
         div.className = "task";
-        if (saved[task.text]) div.classList.add("done");
+        if (saved[task.text]) {
+          div.classList.add("done");
+          doneCount++;
+        }
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -159,12 +266,16 @@
         div.appendChild(removeBtn);
         taskListEl.appendChild(div);
       });
+
+      const percent = Math.round((doneCount / routine.length) * 100);
+      progressFill.style.width = percent + "%";
+      progressFill.textContent = percent + "%";
     }
 
     function toggleTask(task) {
-      const saved = JSON.parse(localStorage.getItem(`routine-${today}`)) || {};
+      const saved = JSON.parse(localStorage.getItem(`routine-${todayKey}`)) || {};
       saved[task] = !saved[task];
-      localStorage.setItem(`routine-${today}`, JSON.stringify(saved));
+      localStorage.setItem(`routine-${todayKey}`, JSON.stringify(saved));
       loadTasks();
     }
 
@@ -197,7 +308,47 @@
       }
     }
 
-    document.addEventListener("DOMContentLoaded", loadTasks);
+    document.addEventListener("DOMContentLoaded", () => {
+      loadTasks();
+
+      const container = document.getElementById("month-grid");
+      const year = 2025;
+
+      for (let month = 0; month < 12; month++) {
+        const monthStart = new Date(year, month, 1);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthName = monthStart.toLocaleString("default", { month: "long" });
+
+        const monthDiv = document.createElement("div");
+        monthDiv.className = "month";
+
+        const label = document.createElement("div");
+        label.className = "month-name";
+        label.textContent = monthName;
+
+        const daysDiv = document.createElement("div");
+        daysDiv.className = "days";
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = new Date(year, month, day);
+          const dayDiv = document.createElement("div");
+          dayDiv.className = "day";
+          dayDiv.textContent = day;
+
+          if (date.toDateString() === today.toDateString()) {
+            dayDiv.classList.add("today");
+          } else if (date > today) {
+            dayDiv.classList.add("future");
+          }
+
+          daysDiv.appendChild(dayDiv);
+        }
+
+        monthDiv.appendChild(label);
+        monthDiv.appendChild(daysDiv);
+        container.appendChild(monthDiv);
+      }
+    });
   </script>
 </body>
 </html>
